@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星空寧靜流星時鐘 v3 - 勵志金句</title>
+    <style>
+        /* 深藍色星空背景 */
+        body {
+            background-color: #05080c;
+            display: flex;
+            flex-direction: column; /* 讓時鐘與文字垂直排列 */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 時鐘容器 */
+        #clock-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* 時鐘樣式 */
+        #clock {
+            color: #ffffff;
+            font-size: 8rem;
+            font-weight: 300;
+            letter-spacing: 5px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+            margin-bottom: 20px;
+        }
+
+        /* 勵志金句樣式 */
+        #quote {
+            color: #a0c4ff; /* 寧靜的淺藍色 */
+            font-size: 1.8rem;
+            min-height: 2.5rem; /* 固定高度防止跳動 */
+            opacity: 0;
+            transition: opacity 1s ease-in-out; /* 淡入淡出效果 */
+            text-shadow: 0 0 10px rgba(160, 196, 255, 0.5);
+        }
+
+        /* 閃爍星星樣式 */
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.2; transform: scale(0.8); }
+        }
+
+        /* 流星樣式 */
+        .shooting-star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            z-index: 5;
+        }
+
+        .shooting-star::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+        }
+
+        @keyframes shooting-star-anim {
+            0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+            100% { transform: translate(120vw, 120vh) rotate(-45deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="clock-container">
+        <div id="clock">00:00:00</div>
+        <div id="quote"></div>
+    </div>
+
+    <script>
+        // --- 1. 時鐘功能 ---
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById("clock").innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- 2. 勵志金句功能 ---
+        const quotes = [
+            "心之所向，素履以往。",
+            "星光不問趕路人，時光不負有心人。",
+            "凡是過往，皆為序章。",
+            "追光的人，終會一身光芒。",
+            "萬物皆有裂痕，那是光照進來的地方。"
+        ];
+
+        function changeQuote() {
+            const quoteElement = document.getElementById("quote");
+            // 先淡出
+            quoteElement.style.opacity = 0;
+            
+            setTimeout(() => {
+                // 隨機選取
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                quoteElement.innerText = quotes[randomIndex];
+                // 再淡入
+                quoteElement.style.opacity = 1;
+            }, 1000); // 等待淡出動畫完成
+        }
+
+        setInterval(changeQuote, 5000); // 每 5 秒執行一次
+        changeQuote(); // 初始顯示
+
+        // --- 3. 背景星星生成 ---
+        function createStars() {
+            const numStars = 100;
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                document.body.appendChild(star);
+            }
+        }
+        createStars();
+
+        // --- 4. 流星生成 ---
+        function createShootingStar() {
+            const star = document.createElement('div');
+            star.className = 'shooting-star';
+            
+            // 隨機從上方或左側起始
+            if (Math.random() > 0.5) {
+                star.style.top = "-50px";
+                star.style.left = `${Math.random() * 70}vw`;
+            } else {
+                star.style.top = `${Math.random() * 50}vh`;
+                star.style.left = "-100px";
+            }
+
+            const duration = Math.random() * 2 + 1;
+            star.style.animation = `shooting-star-anim ${duration}s linear forwards`;
+            
+            document.body.appendChild(star);
+            star.addEventListener('animationend', () => star.remove());
+        }
+
+        function scheduleShootingStar() {
+            setTimeout(() => {
+                createShootingStar();
+                scheduleShootingStar();
+            }, Math.random() * 8000 + 4000); // 隨機 4~12 秒出一顆
+        }
+        scheduleShootingStar();
+    </script>
+</body>
+</html>
